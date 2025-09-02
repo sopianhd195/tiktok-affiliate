@@ -15,7 +15,7 @@ export const generateImage = async (
   vibe: Vibe
 ): Promise<{ image: string; caption: string }> => {
   try {
-    const prompt = `Dengan gambar produk ini, harap tambahkan model '${model.name}' yang realistis, yang merupakan ${model.description}. Model harus menampilkan produk secara alami. Pemandangan keseluruhan harus memiliki estetika '${vibe.name}', mengikuti arahan ini: "${vibe.prompt}". Gambar akhir harus berupa foto promosi berkualitas tinggi yang menarik dan cocok untuk video TikTok vertikal. Buat juga caption TikTok yang singkat dan menarik untuk produk ini.`;
+    const prompt = `Dengan gambar produk ini, harap tambahkan model '${model.name}' yang realistis, yang merupakan ${model.description}. Model harus menampilkan produk secara alami. Pemandangan keseluruhan harus memiliki estetika '${vibe.name}', mengikuti arahan ini: "${vibe.prompt}". Gambar akhir harus berupa foto promosi berkualitas tinggi dalam rasio aspek potret 9:16, yang cocok untuk video TikTok. Buat juga caption TikTok yang singkat dan menarik untuk produk ini.`;
 
     const result = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image-preview',

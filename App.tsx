@@ -97,24 +97,43 @@ const FileUpload: React.FC<FileUploadProps> = ({ onImageUpload, setLoading, setE
 };
 
 interface ModelSelectorProps {
+    models: Model[];
     onSelect: (model: Model) => void;
+    searchQuery: string;
+    onSearchChange: (query: string) => void;
 }
-const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelect }) => (
+const ModelSelector: React.FC<ModelSelectorProps> = ({ models, onSelect, searchQuery, onSearchChange }) => (
     <div>
         <h2 className="text-2xl font-bold text-white mb-4 text-center">Langkah 2: Pilih Model Virtual Anda</h2>
         <p className="text-gray-400 mb-8 text-center">Pilih model yang paling sesuai dengan kepribadian merek Anda.</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {MODELS.map(model => (
-                <div key={model.id} onClick={() => onSelect(model)} className="cursor-pointer group relative rounded-lg overflow-hidden bg-gray-800 hover:scale-105 transition-transform duration-300">
-                    <img src={model.imageUrl} alt={model.name} className="w-full h-64 object-cover group-hover:opacity-75 transition-opacity" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                    <div className="absolute bottom-0 left-0 p-4">
-                        <h3 className="text-lg font-bold text-white">{model.name}</h3>
-                        <p className="text-sm text-gray-300">{model.description}</p>
-                    </div>
-                </div>
-            ))}
+        
+        <div className="mb-6">
+            <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder="Cari model berdasarkan nama..."
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-shadow"
+                aria-label="Cari Model"
+            />
         </div>
+
+        {models.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {models.map(model => (
+                    <div key={model.id} onClick={() => onSelect(model)} className="cursor-pointer group relative rounded-lg overflow-hidden bg-gray-800 hover:scale-105 transition-transform duration-300">
+                        <img src={model.imageUrl} alt={model.name} className="w-full h-64 object-cover group-hover:opacity-75 transition-opacity" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div className="absolute bottom-0 left-0 p-4">
+                            <h3 className="text-lg font-bold text-white">{model.name}</h3>
+                            <p className="text-sm text-gray-300">{model.description}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        ) : (
+             <p className="text-center text-gray-400 mt-4">Tidak ada model yang cocok dengan pencarian Anda.</p>
+        )}
     </div>
 );
 
@@ -220,6 +239,7 @@ const App: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [loadingMessage, setLoadingMessage] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
+    const [modelSearchQuery, setModelSearchQuery] = useState('');
 
     const handleImageUpload = (image: ProductImage) => {
         setProductImage(image);
@@ -281,14 +301,19 @@ const App: React.FC = () => {
         setSelectedVibe(null);
         setGeneratedContent({ image: null, videoUrl: null, caption: null });
         setError(null);
+        setModelSearchQuery('');
     };
+    
+    const filteredModels = MODELS.filter(model =>
+        model.name.toLowerCase().includes(modelSearchQuery.toLowerCase())
+    );
 
     const renderContent = () => {
         switch (step) {
             case Step.UPLOAD_PRODUCT:
                 return <FileUpload onImageUpload={handleImageUpload} setLoading={setIsLoading} setError={setError} />;
             case Step.SELECT_MODEL:
-                return <ModelSelector onSelect={handleModelSelect} />;
+                return <ModelSelector models={filteredModels} onSelect={handleModelSelect} searchQuery={modelSearchQuery} onSearchChange={setModelSearchQuery} />;
             case Step.SELECT_VIBE:
                 return <VibeSelector onSelect={handleGenerateContent} />;
             case Step.GENERATING:
